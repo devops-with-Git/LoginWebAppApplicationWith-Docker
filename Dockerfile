@@ -1,15 +1,22 @@
-FROM eclipse-temurin
+FROM eclipse-temurin:17-jdk-jammy
 
-ENV CATALINA_HOME /opt/tomcat
-ENV PATH $CATALINA_HOME/bin:$PATH
+ENV CATALINA_HOME=/opt/tomcat
+ENV PATH=$CATALINA_HOME/bin:$PATH
 
-RUN apt-get update && apt-get install -y curl tar && \
-    curl -L -O https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.105/bin/apache-tomcat-9.0.105.tar.gz && \
-    mkdir -p /opt/tomcat && \
-    tar xzvf apache-tomcat-9.0.105.tar.gz -C /opt/tomcat --strip-components=1 && \
-    rm apache-tomcat-9.0.105.tar.gz
+# Install dependencies and download Tomcat
+RUN apt-get update && \
+    apt-get install -y curl tar && \
+    curl -fsSL https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.105/bin/apache-tomcat-9.0.105.tar.gz -o tomcat.tar.gz && \
+    mkdir -p $CATALINA_HOME && \
+    tar -xzf tomcat.tar.gz -C $CATALINA_HOME --strip-components=1 && \
+    rm tomcat.tar.gz && \
+    rm -rf $CATALINA_HOME/webapps/* && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-COPY target/LoginWebAppApplicationWith-Docker.war $CATALINA_HOME/webapps/
+WORKDIR $CATALINA_HOME
+
+# Copy WAR file
+COPY target/LoginWebAppApplicationWith-Docker.war webapps/ROOT.war
 
 EXPOSE 8080
 
