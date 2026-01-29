@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk-slim
+FROM eclipse-temurin
 
 ENV CATALINA_HOME /opt/tomcat
 ENV PATH $CATALINA_HOME/bin:$PATH
