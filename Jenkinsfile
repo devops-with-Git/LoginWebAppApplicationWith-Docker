@@ -23,21 +23,26 @@ pipeline {
                 sh "mvn test"
             }
         }
-        stage("Sonarqube Analysis "){
-            steps{
+        stage('Sonarqube Analysis') {
+            steps {
                 withSonarQubeEnv('sonar-server') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Loginwebapp \
-                    -Dsonar.projectKey=Loginwebapp '''
+                    sh '''
+                      $SCANNER_HOME/bin/sonar-scanner \
+                      -Dsonar.projectName=Loginwebapp \
+                      -Dsonar.projectKey=Loginwebapp
+                    '''
                 }
             }
         }
-        stage("quality gate"){
+
+        stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
-                  waitForQualityGate abortPipeline: true, credentialsId: 'Sonar-token'
+                waitForQualityGate abortPipeline: true
                 }
-           }
+            }
         }
+
         stage("Build war file"){
             steps{
                 sh " mvn clean install"
