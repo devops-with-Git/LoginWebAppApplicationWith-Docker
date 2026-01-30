@@ -4,6 +4,9 @@ pipeline {
         jdk 'java-17'
         maven 'Maven3.9'
     }
+    environment {
+        SCANNER_HOME=tool 'sonar-scanner'
+    }
      stages{
         stage("Git Checkout"){
             steps{
@@ -20,16 +23,23 @@ pipeline {
                 sh "mvn test"
             }
         }
-        stage("Sonarqube Scanner"){
+        stage("Sonarqube Analysis "){
             steps{
-                script{
-                    withSonarQubeEnv(credentialsId: 'Sonar-token') {
-                    sh 'mvn sonar:sonar'   
-                    }
-                 }
+                withSonarQubeEnv('sonar-server') {
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Loginwebapp \
+                    -Dsonar.java.binaries=. \
+                    -Dsonar.projectKey= Loginwebapp '''
+                }
             }
         }
-        stage("Build"){
+        stage("quality gate"){
+            steps {
+                script {
+                  waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token'
+                }
+           }
+        }
+        stage("Build war file"){
             steps{
                 sh " mvn clean install"
             }
