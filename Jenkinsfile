@@ -27,8 +27,7 @@ pipeline {
             steps{
                 withSonarQubeEnv('sonar-server') {
                     sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Loginwebapp \
-                    -Dsonar.java.binaries=. \
-                    -Dsonar.projectKey= Loginwebapp '''
+                    -Dsonar.projectKey=Loginwebapp '''
                 }
             }
         }
