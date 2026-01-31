@@ -40,16 +40,18 @@ pipeline {
                 sh " mvn clean install"
             }
         }
-       stage("Docker Build and Image Push"){
-            steps{
-                script{
-                    withDockerRegistry(credentialsId: 'Docker-Hub', toolName: 'docker') {
-                       sh "docker build -t swapnilhub/loginwebappseven ."
-                       sh "docker push swapnilhub/loginwebappseven:latest"
-                    }
-                }
-            }     
+       stage("Docker Build and Push") {
+    steps {
+        script {
+            withDockerRegistry(credentialsId: 'Docker-Hub', toolName: 'docker') {
+                sh """
+                docker build -t swapnilhub/loginwebappseven:latest .
+                docker push swapnilhub/loginwebappseven:latest
+                """
+            }
         }
+    }
+}
         stage("TRIVY"){
             steps{
                 sh "trivy image swapnilhub/loginwebappseven:latest > trivyimage.txt"
